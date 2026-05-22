@@ -7,19 +7,33 @@ from io import BytesIO
 import streamlit as st
 from docx import Document
 
+# Set environment variables for Playwright
+os.environ.setdefault('PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD', '1')
+os.environ.setdefault('PLAYWRIGHT_BROWSERS_PATH', '0')
+
 # Auto-install Playwright browser binaries if missing
 try:
     from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
-except ImportError:
-    st.error("📦 Installing Playwright browser binaries... This may take a moment.")
-    st.info("Please refresh the page in a few seconds after installation completes.")
+except ImportError as import_err:
+    st.error("📦 Setting up Playwright browser binaries...")
+    st.info("This is a one-time setup. Please wait and refresh the page in a few seconds.")
     try:
-        subprocess.check_call([sys.executable, "-m", "playwright", "install", "chromium"])
+        # Install Playwright browser binaries
+        subprocess.check_call([sys.executable, "-m", "playwright", "install", "chromium"], 
+                            timeout=180)  # 3 minute timeout
         st.rerun()
+    except subprocess.TimeoutExpired:
+        st.error("⏱️ Installation timeout. The app will retry on next refresh.")
+        st.stop()
     except Exception as install_error:
         st.error(f"Failed to install Playwright: {install_error}")
+        st.info("Troubleshooting: Make sure all system dependencies are installed.")
         st.stop()
-    from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
+    try:
+        from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
+    except ImportError:
+        st.error("Failed to import Playwright after installation attempt.")
+        st.stop()
 
 st.set_page_config(
     page_title="ChatGPT Share → PDF",

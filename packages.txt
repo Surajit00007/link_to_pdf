@@ -1,3 +1,4 @@
+build-essential
 chromium
 libnss3
 libxss1
@@ -15,3 +16,7 @@ libxfixes3
 libxrandr2
 xdg-utils
 wget
+ca-certificates
+fonts-dejavu
+libffi-dev
+libssl-dev
