@@ -42,6 +42,40 @@ streamlit run streamlit_app.py
 
 Then open the local URL shown in the terminal, such as `http://localhost:8502`.
 
+## Deployment
+
+### Streamlit Cloud (Recommended)
+
+1. Push your code to a GitHub repository
+2. The `packages.txt` file ensures Chromium is installed automatically
+3. The app includes auto-recovery for missing binaries
+4. Just connect your repo to [Streamlit Cloud](https://streamlit.io/cloud) and deploy!
+
+### Other Platforms (Railway, Render, Heroku, etc.)
+
+Add this to your startup command:
+
+```bash
+bash setup.sh && streamlit run streamlit_app.py
+```
+
+Or manually ensure Playwright binaries are installed before running:
+
+```bash
+python -m playwright install chromium
+streamlit run streamlit_app.py
+```
+
+## Troubleshooting
+
+### "Playwright browser binaries are missing" error
+
+This is typically a one-time initialization issue on first deployment:
+
+1. **On Streamlit Cloud**: Refresh the page. The app auto-detects and installs binaries.
+2. **Locally**: Run `python -m playwright install chromium` then restart the app.
+3. **Other platforms**: Run `bash setup.sh` before starting the app.
+
 ## Usage
 
 - Paste a public ChatGPT share link into the input box.
@@ -51,6 +85,6 @@ Then open the local URL shown in the terminal, such as `http://localhost:8502`.
 ## Notes
 
 - Only public share links are supported. Private or authenticated sessions are not supported.
-- If Playwright reports missing browser binaries, run `python -m playwright install chromium` and restart the app.
 - If rendering takes too long, try again after verifying the URL or using a shorter chat.
-- Make sure you run the app in the same Python environment where `python-docx` is installed.
+- The app automatically handles missing Playwright binaries on most platforms.
+- Make sure you run the app in the same Python environment where all dependencies are installed.

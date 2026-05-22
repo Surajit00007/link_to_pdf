@@ -1,9 +1,25 @@
+import subprocess
+import sys
+import os
 import re
 from io import BytesIO
 
 import streamlit as st
 from docx import Document
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
+
+# Auto-install Playwright browser binaries if missing
+try:
+    from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
+except ImportError:
+    st.error("📦 Installing Playwright browser binaries... This may take a moment.")
+    st.info("Please refresh the page in a few seconds after installation completes.")
+    try:
+        subprocess.check_call([sys.executable, "-m", "playwright", "install", "chromium"])
+        st.rerun()
+    except Exception as install_error:
+        st.error(f"Failed to install Playwright: {install_error}")
+        st.stop()
+    from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
 
 st.set_page_config(
     page_title="ChatGPT Share → PDF",
@@ -99,6 +115,24 @@ def is_chatgpt_share_url(url: str) -> bool:
     return bool(VALID_URL_PATTERN.match(url.strip()))
 
 
+@st.cache_resource
+def verify_playwright_installation():
+    """Verify that Playwright browser binaries are installed."""
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as pw:
+            # Try to launch to verify binaries exist
+            browser = pw.chromium.launch(headless=True)
+            browser.close()
+        return True
+    except Exception as e:
+        error_msg = str(e)
+        if "Executable doesn't exist" in error_msg or "ENOENT" in error_msg:
+            return False
+        # Other errors, still return True to attempt the conversion
+        return True
+
+
 def export_chatgpt_share_to_pdf(url: str) -> bytes:
     with sync_playwright() as playwright:
         try:
@@ -178,6 +212,17 @@ def export_chatgpt_share_to_docx(url: str) -> bytes:
 
 
 def main() -> None:
+    # Verify Playwright installation
+    if not verify_playwright_installation():
+        st.error(
+            "❌ **Playwright browser binaries are missing!**\n\n"
+            "This error should resolve automatically on Streamlit Cloud within a few minutes. "
+            "Please refresh the page to retry.\n\n"
+            "If the issue persists, the app is being re-initialized. Try refreshing again."
+        )
+        st.info("💡 **This is a one-time setup issue** - it typically resolves itself automatically.")
+        st.stop()
+    
     # Sidebar information
     with st.sidebar:
         st.markdown("### ℹ️ About")
