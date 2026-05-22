@@ -1,19 +1,56 @@
-# 📄 Document question answering template
+# 📄 ChatGPT Share Link Converter
 
-A simple Streamlit app that answers questions about an uploaded document via OpenAI's GPT-3.5.
+A lightweight Streamlit web app that converts public ChatGPT share links into clean, downloadable PDF or Word documents.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://document-question-answering-template.streamlit.app/)
+This tool uses Playwright to load the share page in a headless browser, wait for the chat content to render, and export the result as a polished offline file.
 
-### How to run it on your own machine
+## Features
 
-1. Install the requirements
+- Accepts public ChatGPT share links from `chat.openai.com/share/*`, `chatgpt.com/share/*`, and `shareg.pt/*`
+- Converts rendered chats to PDF or Word (`.docx`)
+- Uses headless Chromium via Playwright for full JavaScript rendering
+- Removes unnecessary page chrome for cleaner output
+- Provides side-by-side export buttons for PDF and Word
+- Shows conversion status and file size after export
 
+## Setup
+
+1. Activate your project environment (optional but recommended):
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
    ```
-   $ pip install -r requirements.txt
+
+2. Install Python dependencies:
+
+   ```bash
+   pip install -r requirements.txt
    ```
 
-2. Run the app
+3. Install Playwright browser binaries:
 
+   ```bash
+   python -m playwright install chromium
    ```
-   $ streamlit run streamlit_app.py
-   ```
+
+## Run the app
+
+```bash
+streamlit run streamlit_app.py
+```
+
+Then open the local URL shown in the terminal, such as `http://localhost:8502`.
+
+## Usage
+
+- Paste a public ChatGPT share link into the input box.
+- Click **Convert to PDF** or **Convert to Word**.
+- Download the generated file from the buttons that appear.
+
+## Notes
+
+- Only public share links are supported. Private or authenticated sessions are not supported.
+- If Playwright reports missing browser binaries, run `python -m playwright install chromium` and restart the app.
+- If rendering takes too long, try again after verifying the URL or using a shorter chat.
+- Make sure you run the app in the same Python environment where `python-docx` is installed.
